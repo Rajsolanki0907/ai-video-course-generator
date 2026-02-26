@@ -1,6 +1,8 @@
+import { ClerkProvider } from '@clerk/nextjs';
 import type { Metadata } from "next";
 import { Arimo } from "next/font/google";
 import "./globals.css";
+import Provider from './provider';
 
 const AppFont=Arimo({subsets:["latin"]})
 
@@ -15,12 +17,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    <ClerkProvider>
     <html lang="en">
       <body
-       className={AppFont.className}
-      >
-        {children}
+       className={AppFont.className} 
+       >
+        <Provider>
+          {children}
+        </Provider>
+        
       </body>
-    </html>
-  );
+    </html> 
+    </ClerkProvider>
+     );
 }
