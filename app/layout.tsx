@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Arimo } from "next/font/google";
 import "./globals.css";
 import Provider from './provider';
+import { Toaster } from '@/components/ui/sonner';
 
 const AppFont=Arimo({subsets:["latin"]})
 
@@ -24,6 +25,7 @@ export default function RootLayout({
        >
         <Provider>
           {children}
+          <Toaster position='top-center' richColors />
         </Provider>
         
       </body>
