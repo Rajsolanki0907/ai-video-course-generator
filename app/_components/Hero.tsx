@@ -1,71 +1,125 @@
-import React from "react";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-  InputGroupTextarea,
-} from "@/components/ui/input-group";
-import { Send } from "lucide-react";
+"use client";
+
+import React, { useState } from "react";
+import { Loader } from "lucide-react";
+import axios from "axios";
+import { toast } from "sonner";
+import { useUser, SignInButton } from "@clerk/nextjs";
 
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
 import { QUICK_VIDEO_SUGGESTIONS } from "@/data/constant";
 
 function Hero() {
+  const [userInput, setUserInput] = useState("");
+  const [type, setType] = useState("full-course");
+  const [loading, setLoading] = useState(false);
+
+  const { user } = useUser();
+
+  const GenerateCourseLayout = async () => {
+    if (!userInput) return;
+          const toastId = toast.loading("Generating course layout...");
+          const courseId = await crypto.randomUUID();
+
+
+    try {
+      setLoading(true);
+
+      const result = await axios.post("/api/generate-course-layout", {
+        userInput,
+        type,
+        courseId: courseId
+      });
+
+      console.log(result.data);
+      toast.success("Course generated!", { id: toastId });
+
+      //navigate to course page
+      
+      
+    } catch (error) {
+      console.error(error);
+      toast.error("Something went wrong", { id: toastId });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div>
+    <div className="relative z-50">
+      {/* Heading */}
       <div>
         <h1 className="text-4xl font-bold text-center mt-20">
-          Learn Smarter with
-          <span className="text-blue-600"> AI Video Courses</span>
+          Learn Smarter with{" "}
+          <span className="text-blue-600">AI Video Courses</span>
         </h1>
+
         <p className="text-center mt-4 text-lg text-gray-600">
-          Unlock your potential with personalized AI-driven video courses. Learn
-          at your own pace, anytime, anywhere.
+          Unlock your potential with personalized AI-driven video courses.
+          Learn at your own pace, anytime, anywhere.
         </p>
       </div>
-      <div className="grid w-full max-w-sm gap-2 mx-auto mt-10 bg-white z-10">
-        <InputGroup>
-          <InputGroupTextarea
-            data-slot="input-group-control"
-            className="flex field-sizing-content min-h-16 w-full resize-none rounded-md bg-white px-3 py-2.5 text-base transition-[color,box-shadow] outline-none md:text-sm"
-            placeholder="Autoresize textarea..."
-          />
 
-          <InputGroupAddon align="block-end">
-            <Select>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="full-course" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectItem value="full-course">Full- Course</SelectItem>
-                  <SelectItem value="quick-explain-video">Quick Explain Video</SelectItem>
-                 
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            <InputGroupButton
-              className="ml-auto bg-blue-600 p-4"
-              size="icon-sm"
-              variant="default"
-            >
-              <Send />
-            </InputGroupButton>
-          </InputGroupAddon>
-        </InputGroup>
+      {/* Input Section */}
+      <div className="flex items-center gap-3 w-full max-w-2xl mx-auto mt-10 bg-white p-4 rounded-xl shadow-md">
+
+        {/* TEXTAREA */}
+        <textarea
+          className="flex-1 min-h-[60px] resize-none outline-none px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+          placeholder="Write your prompt here..."
+          value={userInput}
+          onChange={(e) => setUserInput(e.target.value)}
+        />
+
+        {/* SELECT */}
+        <Select value={type} onValueChange={(value) => setType(value)}>
+          <SelectTrigger className="w-40">
+            <SelectValue placeholder="full-course" />
+          </SelectTrigger>
+
+          <SelectContent>
+            <SelectItem value="full-course">Full Course</SelectItem>
+            <SelectItem value="quick-explain-video">
+              Quick Explain
+            </SelectItem>
+          </SelectContent>
+        </Select>
+
+        {/* BUTTON */}
+        {user ? (
+          <button
+            onClick={GenerateCourseLayout}
+            disabled={loading || !userInput}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center justify-center"
+          >
+            {loading ? <Loader className="animate-spin" /> : "Generate"}
+          </button>
+        ) : (
+          <SignInButton mode="modal">
+            <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+              Sign In
+            </button>
+          </SignInButton>
+        )}
       </div>
 
-      <div className="flex gap-5 mt-5 max-w-3xl mx-auto flex-wrap justify-center z-10">
-        {QUICK_VIDEO_SUGGESTIONS.map((suggestion,index) => (
-            <h2 key = {index} className="border rounded-2xl p-1 px-2 text-sm font-bold bg-white">{suggestion.title}</h2>
+      {/* Suggestions */}
+      <div className="flex gap-3 mt-6 max-w-3xl mx-auto flex-wrap justify-center">
+        {QUICK_VIDEO_SUGGESTIONS.map((suggestion, index) => (
+          <button
+            key={index}
+            onClick={() => setUserInput(suggestion.prompt)}
+            className="border rounded-2xl cursor-pointer p-2 px-3 text-sm font-semibold bg-white hover:bg-gray-100 transition"
+          >
+            {suggestion.title}
+          </button>
         ))}
       </div>
     </div>
