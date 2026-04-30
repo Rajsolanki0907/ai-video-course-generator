@@ -6,7 +6,7 @@ import Courselist from "./_components/Courselist";
 export default function Home() {
   return (
     <div>
-      <Header />
+      
       <Hero />
       {/* <Courselist /> */}
 
