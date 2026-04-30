@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 
 import { QUICK_VIDEO_SUGGESTIONS } from "@/data/constant";
+import { useRouter } from "next/navigation";
 
 function Hero() {
   const [userInput, setUserInput] = useState("");
@@ -22,7 +23,7 @@ function Hero() {
   const [loading, setLoading] = useState(false);
 
   const { user } = useUser();
-
+  const router = useRouter();
   const GenerateCourseLayout = async () => {
     if (!userInput) return;
           const toastId = toast.loading("Generating course layout...");
@@ -42,6 +43,7 @@ function Hero() {
       toast.success("Course generated!", { id: toastId });
 
       //navigate to course page
+      router.push('/course/' + courseId);
       
       
     } catch (error) {

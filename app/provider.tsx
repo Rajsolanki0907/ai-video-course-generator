@@ -3,6 +3,7 @@ import { de } from 'date-fns/locale'
 import React, { use, useEffect, useState } from 'react'
 import axios from 'axios'
 import { UserDetailContext } from '@/context/UserDetailContext'
+import Header from './_components/Header'
 
 function Provider({ children }:{children:React.ReactNode }){
      
@@ -19,6 +20,7 @@ function Provider({ children }:{children:React.ReactNode }){
         <div>
             <UserDetailContext.Provider value={{userDetails,setUserDetails}}>
                 <div className='max-w-7xl mx-auto'>
+                    <Header />
                       {children}
                 </div>
                     
