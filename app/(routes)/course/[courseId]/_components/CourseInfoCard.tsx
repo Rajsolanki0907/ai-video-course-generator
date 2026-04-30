@@ -11,7 +11,7 @@ type Props = {
 function CourseInfoCard({course}:Props) {
   return (
     <div>
-        <div className='p-20 rounded-2xl grid grid-cols-1 md:grid-cols2 gap-5
+        <div className='p-20 rounded-2xl grid grid-cols-1 md:grid-cols-2 gap-5
         bg-gradient-to-br from-slate-950 via-slate-800 to-emerald-950'>
             <div>
                 <h2 className='flex gap-2 p-1 px-2 border rounded-2xl inline-flex text-white border-gray-200/70 '><Sparkle/>Course Preview</h2>
