@@ -33,7 +33,7 @@ import ChapterVideo from './ChapterVideo'
                           </CardHeader>
 
                           <CardContent>
-                            <div className='grid grid-cols2 gap-5'>
+                            <div className='grid grid-cols-2 gap-5'>
                                 <div>
                             {chapter?.subContent.map((content,index) => (
                                 <div className='flex gap-2 items-center mt-2' key={index}> 
@@ -57,7 +57,6 @@ import ChapterVideo from './ChapterVideo'
                                                 }}
                                                 />
                             </div>
-
                             </div>
                           </CardContent>
                 </Card>
