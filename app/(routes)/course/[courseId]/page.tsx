@@ -45,7 +45,8 @@ function CoursePreview(){
 
            const result = await axios.post('/api/generate-video-content',
             {
-                chapter:course?.courseLayout?.chapters[0]
+                chapter:course?.courseLayout?.chapters[0],
+                courseId: course?.courseId
             });
 
             console.log(JSON.stringify(result.data));

@@ -38,6 +38,8 @@ export const chapterContentSlides = pgTable("chapter_content_slides", {
   slideId:varchar({ length: 255 }).notNull(),
   slideIndex:integer().notNull(),
   audioFileName:varchar({ length: 255 }).notNull(),
+  captions:json().notNull(),
+  audioFileUrl:varchar({length:1024}).notNull(),
   narration:json().notNull(),
   html:text(),
   revealData: json().notNull(),
