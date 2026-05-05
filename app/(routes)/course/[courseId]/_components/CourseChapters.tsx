@@ -63,7 +63,6 @@ import ChapterVideo from './ChapterVideo'
             ))}
         </div>
       </div>
-      
     ) 
   }
   
