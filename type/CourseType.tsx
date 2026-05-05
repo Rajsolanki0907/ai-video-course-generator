@@ -34,5 +34,9 @@ export type ChapterContentSlide = {
     narration:{fullText:string;};
     html:string,
     revealData:string[];
+    audioFileUrl: string;
+    captions: {
+        chunks: string[];
+    }
 
 }

@@ -2,6 +2,10 @@ import { Course } from '@/type/CourseType';
 import { BookOpen, ChartNoAxesColumnIncreasing, Sparkle } from 'lucide-react';
 import { Player } from '@remotion/player';
 import ChapterVideo from './ChapterVideo';
+import { useEffect, useState } from 'react';
+import {getAudioData} from '@remotion/media-utils';
+
+
 
 // ...existing code...
 type Props = {
@@ -9,6 +13,117 @@ type Props = {
 }
 
 function CourseInfoCard({course}:Props) {
+    const fps=30;
+    const slides=course?.chapterContentSlides??[];
+    const[durationBySlideId,setDurationBySlideId]=useState<Record<string,number>|null>(null);
+// useEffect(() => {
+//     let cancelled = false;
+
+//     const run = async () => {
+//         if (slides.length === 0) return;
+
+//         const entries = [];
+
+//         for (const slide of slides) {
+//             try {
+//                 const audioData = await getAudioData(slide?.audioFileUrl);
+//                 const audioSec = audioData?.durationInSeconds ?? 0;
+//                 const frames = Math.max(1, Math.ceil(audioSec * fps));
+//                 entries.push([slide.slideId, frames]);
+//             } catch (err) {
+//                 console.error("Audio fetch failed:", slide.slideId, err);
+//                 entries.push([slide.slideId, 1]);
+//             }
+//         }
+
+//         if (!cancelled) {
+//             setDurationBySlideId(Object.fromEntries(entries));
+//         }
+//     };
+
+//     run();
+
+//     return () => {
+//         cancelled = true;
+//     };
+// }, [slides]);
+    // useEffect(()=>{
+    //     let cancelled = false;
+    //     const run = async()=>{
+    //         if(!slides){
+    //             return;
+    //         }
+    //         const entries = await Promise.all(
+    //             slides.map(async(slide)=>{
+    //                 const audioData = await getAudioData(slide?.audioFileUrl);
+    //                 const audioSec = audioData?.durationInSeconds;
+    //                 const frames=Math.max(1,Math.ceil(audioSec*fps));
+    //                 return [slide.slideId, frames] as const;
+
+    //             })
+    //         );
+    //         if(!cancelled){
+    //             setDurationBySlideId(Object.fromEntries(entries));
+    //         }
+    //     }
+    //     run();
+    //     return()=>{
+    //         cancelled=true;
+    //     }
+    // },[slides,fps]);
+    // console.log("durationbySlideId: ",durationBySlideId);
+
+
+    useEffect(() => {
+  if (!slides || slides.length === 0) return;
+
+  console.log("Slides received:", slides);
+
+  let cancelled = false;
+
+  const run = async () => {
+    const entries: [string, number][] = [];
+
+    for (const slide of slides) {
+      try {
+        if (!slide.audioFileUrl) {
+          console.warn("Missing audio URL for:", slide.slideId);
+          entries.push([slide.slideId, 1]);
+          continue;
+        }
+
+        console.log("Fetching audio:", slide.audioFileUrl);
+
+        const audioData = await getAudioData(slide.audioFileUrl);
+
+        const audioSec = audioData?.durationInSeconds ?? 0;
+        const frames = Math.max(1, Math.ceil(audioSec * 30));
+
+        entries.push([slide.slideId, frames]);
+
+      } catch (err) {
+        console.error("Audio failed:", slide.slideId, err);
+        entries.push([slide.slideId, 1]);
+      }
+    }
+
+    if (!cancelled) {
+      const result = Object.fromEntries(entries);
+      console.log("Final Frames:", result);
+      setDurationBySlideId(result);
+    }
+  };
+
+  run();
+
+  return () => {
+    cancelled = true;
+  };
+}, [slides]);
+ console.log("durationbySlideId: ",durationBySlideId);
+ console.log("Slides length:", slides.length);
+
+
   return (
     <div>
         <div className='p-20 rounded-2xl grid grid-cols-1 md:grid-cols-2 gap-5
