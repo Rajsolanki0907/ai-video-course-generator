@@ -32,14 +32,21 @@ function Hero() {
 
     try {
       setLoading(true);
-
       const result = await axios.post("/api/generate-course-layout", {
         userInput,
         type,
         courseId: courseId
       });
-
       console.log(result.data);
+      
+      //payment gateway integration pending
+      if(result?.data?.msg === "max limit"){
+        toast.error("maximum limit of free courses. Please upgrade to a paid plan to create more courses.", { id: toastId });
+         return;
+      }
+
+
+
       toast.success("Course generated!", { id: toastId });
 
       //navigate to course page

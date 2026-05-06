@@ -57,14 +57,28 @@ import { flashModel, backupModel } from "@/config/gemini";
 import { NextResponse } from "next/server";
 import { Course_config_prompt } from "@/data/Prompt";
 import { coursesTable } from "@/config/schema";
-import { currentUser } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { db } from "@/config/db";
+import { eq } from "drizzle-orm";
+
 
 export async function POST(req: Request) {
   try {
     const { userInput, courseId, type } = await req.json();
     const user = await currentUser();
 
+    //payment gateway check
+    const {has} = await auth();
+    const isPaidUser = has({ plan: 'monthly' })
+
+    if(!isPaidUser){
+      const userCources = await db.select().from(coursesTable)
+      .where(eq(coursesTable.userId, user?.primaryEmailAddress?.emailAddress || ''))
+       
+      if(userCources.length >= 2){
+        return NextResponse.json({ msg: "max limit" }, { status: 403 });
+      }
+    }
     const finalPrompt = `
 ${Course_config_prompt}
 
