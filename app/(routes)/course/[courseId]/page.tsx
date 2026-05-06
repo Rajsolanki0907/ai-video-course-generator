@@ -74,6 +74,7 @@ import axios from 'axios';
 import { Course } from '@/type/CourseType';
 import CourseChapters from './_components/CourseChapters';
 import { toast } from 'sonner';
+import { getAudioData } from '@remotion/media-utils';
 
 function CoursePreview() {
 
@@ -152,11 +153,53 @@ function CoursePreview() {
     // 🔄 Refresh course after generation
     GetCourseDetail();
   };
+    const fps = 30;
+    const slides = courseDetail?.chapterContentSlides ?? [];
+    const [durationBySlideId, setDurationBySlideId] =
+      useState<Record<string, number> | null>(null);
+  
+    useEffect(() => {
+      if (!slides || slides.length === 0) return;
+  
+      let cancelled = false;
+  
+      const run = async () => {
+        const entries: [string, number][] = [];
+  
+        for (const slide of slides) {
+          try {
+            if (!slide.audioFileUrl) {
+              entries.push([slide.slideId, 1]);
+              continue;
+            }
+  
+            const audioData = await getAudioData(slide.audioFileUrl);
+            const audioSec = audioData?.durationInSeconds ?? 0;
+            const frames = Math.max(1, Math.ceil(audioSec * fps));
+  
+            entries.push([slide.slideId, frames]);
+          } catch (err) {
+            console.error("Audio failed:", slide.slideId, err);
+            entries.push([slide.slideId, 1]);
+          }
+        }
+  
+        if (!cancelled) {
+          setDurationBySlideId(Object.fromEntries(entries));
+        }
+      };
+  
+      run();
+  
+      return () => {
+        cancelled = true;
+      };
+    }, [slides]);  
 
   return (
     <div className='flex flex-col items-center'>
-      <CourseInfoCard course={courseDetail} />
-      <CourseChapters course={courseDetail} />
+      <CourseInfoCard course={courseDetail} durationBySlideId={durationBySlideId}/>
+      <CourseChapters course={courseDetail}  durationBySlideId={durationBySlideId}/>
     </div>
   );
 }

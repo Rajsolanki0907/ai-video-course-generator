@@ -1,15 +1,23 @@
-  import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+"use client"
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Course } from '@/type/CourseType'
 import { Player } from '@remotion/player'
 import { Dot } from 'lucide-react'
 import React from 'react'
-import ChapterVideo from './ChapterVideo'
-  
+import { CourseComposition } from './ChapterVideo';
 
   type Props={
-    course:Course |undefined
+    course:Course |undefined,
+    durationBySlideId: Record<string, number> | null
   }
-  function CourseChapters({course}:Props) {
+  function CourseChapters({course, durationBySlideId}:Props) {
+    const GetChapterDurationInFrames = (chapterId: string) => {
+      if (!durationBySlideId || !course) return 30
+      return course?.chapterContentSlides
+      .filter(slide => slide.chapterId === chapterId)
+      .reduce((sum, slide) => sum + (durationBySlideId[slide.slideId] ?? 30), 0);
+    }
+
     return (
       <div className='max-w-6xl -mt-5 p-10 border rounded-3xl shadow w-full
       bg-background/80 backdrop-blur'>
@@ -44,8 +52,13 @@ import ChapterVideo from './ChapterVideo'
                             </div>
                             <div className='overflow-hidden'>
                                 <Player 
-                                                component={ChapterVideo}
-                                                durationInFrames={30}
+                                component={CourseComposition}
+                                inputProps={{
+                                            //@ts-ignore
+                                            slides: slides.filter((slide)=> slide.chapterId === chapter.chapterId), 
+                                             durationsBySlideId: durationBySlideId ??{}
+                                             }}
+                                                durationInFrames={GetChapterDurationInFrames(chapter?.chapterId)}
                                                 compositionWidth={1280}
                                                 compositionHeight={720}
                                                 fps={30}

@@ -23,7 +23,9 @@
 
 import { db } from "@/config/db";
 import { chapterContentSlides, coursesTable } from "@/config/schema";
-import { eq } from "drizzle-orm";
+import { currentUser } from "@clerk/nextjs/server";
+import { eq, desc } from "drizzle-orm";
+import { PgColumn } from "drizzle-orm/pg-core";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
@@ -32,12 +34,20 @@ export async function GET(req: NextRequest) {
     // 1. GET courseId from URL
     // =========================
     const courseId = req.nextUrl.searchParams.get("courseId");
+    const user = await currentUser();
 
     if (!courseId) {
-      return NextResponse.json(
-        { error: "courseId is required" },
-        { status: 400 }
-      );
+      if (!user) {
+        return NextResponse.json([]);
+      }
+
+      const userCourses = await db
+        .select()
+        .from(coursesTable)
+        .where(eq(coursesTable.userId, user.primaryEmailAddress?.emailAddress!))
+        .orderBy(desc(coursesTable.id));
+
+      return NextResponse.json(userCourses);
     }
 
     // =========================
@@ -80,4 +90,8 @@ export async function GET(req: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+function orderBy(createdAt: PgColumn<{ name: "createdAt"; tableName: "courses"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: false; hasDefault: true; isPrimaryKey: false; isAutoincrement: false; hasRuntimeDefault: false; enumValues: undefined; baseColumn: never; identity: undefined; generated: undefined; }, {}, {}>, arg1: string) {
+  throw new Error("Function not implemented.");
 }
