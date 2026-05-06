@@ -1,4 +1,5 @@
 export type Course = {
+    [x: string]: ReactNode;
     courseId: string;
     courseName : string;
     type : string;
