@@ -1,8 +1,9 @@
 "use client"
-import React from 'react'
+import React, { useState } from "react";
 import Image from 'next/image'
 import { SignInButton, UserButton, useUser } from '@clerk/nextjs';
 import { Button } from '@/components/ui/button';
+import Link from "next/link";
 
 function Header() {
     const { user } = useUser();
@@ -13,9 +14,14 @@ function Header() {
         <h2 className='text-lg font-bold'> <span className='text-primary'>Vedemy</span></h2>
         </div>
         <ul className='flex gap-6 items-center'>
-            <li className='text-lg hover:text-blue-600 font-medium cursor-pointer'>Home</li>
-            <li  className='text-lg hover:text-blue-600 font-medium cursor-pointer'>Pricing</li>
+            <li className='text-lg hover:text-blue-600 font-medium cursor-pointer'>
+                <Link href="/">Home</Link>
+            </li>
+            <li  className='text-lg hover:text-blue-600 font-medium cursor-pointer'>
+                <Link href="/pricing">Pricing</Link>
+            </li>
         </ul>
+   
 
         {user ? 
             <UserButton /> :
